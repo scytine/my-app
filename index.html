@@ -140,7 +140,7 @@ footer{padding:2rem clamp(1rem,4vw,3rem) 3rem;color:var(--muted);font-size:.9rem
 <footer><span>© 2026 Biasbox. Sample storefront with placeholder products and prices.</span><span>Group names belong to their respective agencies.</span></footer>
 
 <script>
-const MAIN="shop.html";
+const MAIN = "/shop.html";
 const groups=[
  {n:"Stray Kids",m:"SKZ",a:"#ff3d3d",b:"#7a5cff",pc:"Hyunjin"},
  {n:"NewJeans",m:"NJ",a:"#2fa8ff",b:"#a06bff",pc:"Haerin"},
@@ -158,7 +158,7 @@ function render(){
   $("sub").textContent="Official "+g.n+" merch: the lightstick for the show, the album for the shelf, and the photocards you are still hunting for.";
   $("alb").textContent=g.n.toUpperCase();$("pcn").textContent=g.pc;
   [...$("pick").children].forEach((b,i)=>b.setAttribute("aria-pressed",i===cur));
-  document.querySelectorAll("[data-m]").forEach(a=>{a.href=MAIN+"?g="+cur+"#"+a.dataset.m;a.target="_blank";a.rel="noopener"});
+  document.querySelectorAll("[data-m]").forEach(a=>{a.href = "/shop.html?g=" + cur + "#" + a.dataset.m;a.target="_blank";a.rel="noopener"});
 }
 $("pick").innerHTML=groups.map((g,i)=>`<button type="button" data-i="${i}" aria-pressed="false">${g.n}</button>`).join("");
 $("pick").addEventListener("click",e=>{const b=e.target.closest("button");if(b){cur=+b.dataset.i;render()}});
