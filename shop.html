@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shop — Squidge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="shopPage">
+  <aside class="side">
+    <a class="logo" href="index.html">Squidge</a>
+    <nav aria-label="Filters">
+      <p>Squishy type</p>
+      <button class="f on" data-type="all">All types</button>
+      <button class="f" data-type="vaseline">Vaseline</button>
+      <button class="f" data-type="crunchy">Crunchy</button>
+      <button class="f" data-type="butter">Butter</button>
+      <button class="f" data-type="slow">Slow-rise</button>
+      <button class="f" data-type="mochi">Mochi</button>
+      <button class="f" data-type="jelly">Jelly</button>
+      <p>Squish level</p>
+      <button class="f on" data-lv="Any">Any</button>
+      <button class="f" data-lv="Soft">Soft</button>
+      <button class="f" data-lv="Medium">Medium</button>
+      <button class="f" data-lv="Firm">Firm</button>
+    </nav>
+    <a class="back" href="index.html">← Back to home</a>
+  </aside>
+
+  <div class="shopMain">
+    <header class="shopTop">
+      <h1 id="shopTitle">All squishies</h1>
+      <div class="acts">
+        <button class="snd" aria-pressed="true">Sound on</button>
+        <button class="cartBtn" id="cartBtn" aria-label="Open cart">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.6 12.2a1 1 0 0 0 1 .8h9.2a1 1 0 0 0 1-.8L21 7H6"/></svg>
+          <span id="cartN">0</span>
+        </button>
+      </div>
+    </header>
+    <p class="blurb" id="blurb"></p>
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Cart">
+  <div class="dh"><h2>Your cart</h2><button id="cx" aria-label="Close cart">✕</button></div>
+  <ul id="clist"></ul>
+  <div>
+    <div class="tot"><span>Total</span><b id="ctot">₱0</b></div>
+    <button class="cta" id="chk" style="width:100%;border:0;cursor:pointer">Checkout</button>
+  </div>
+</aside>
+<div class="wipe" id="wipe"></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="core.js"></script>
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)},S=Squidge,Sq=S.Sq;
+
+  /* [name, sound description] by type */
+  var T={
+    vaseline:['Vaseline','Clear, glossy gel that stretches and oozes. Sounds like a wet, gooey squelch.','gooey squelch'],
+    crunchy:['Crunchy','Filled with foam beads, so every squeeze crackles like cereal.','crackly crunch'],
+    butter:['Butter','Smooth, matte and dense, like soft clay. Gives a low, quiet thud.','soft thud'],
+    slow:['Slow-rise','Foam that takes its time to come back. Lets out an airy sigh as it rises.','airy sigh'],
+    mochi:['Mochi','Sticky, stretchy and powdery. A pat when you press and a peel when you let go.','sticky peel'],
+    jelly:['Jelly','Wobbly and see-through. Every press ends in a bubbly bloop.','bubbly bloop']
+  };
+  /* name, type, price, color 1, color 2, card color, squish level */
+  var P=[
+    ['Glass Frog','vaseline',259,'#e6fbff','#5ad6ff','#d4f1ff','Soft'],
+    ['Honey Drop','vaseline',239,'#fff3b0','#ffb800','#fff2a8','Medium'],
+    ['Cornflake Cat','crunchy',249,'#ffe8b5','#ffb04d','#ffe2b8','Medium'],
+    ['Crunch Bear','crunchy',269,'#ffd0c2','#ff7a5c','#ffd9ce','Firm'],
+    ['Butter Bun','butter',229,'#fff6b0','#ffd93d','#fff3a8','Soft'],
+    ['Toast Pat','butter',219,'#ffe1a8','#e8a838','#ffe6b9','Medium'],
+    ['Peachy Bun','slow',249,'#ffb3d4','#ff7eb6','#ffd9e8','Soft'],
+    ['Cloud Cat','slow',259,'#e0f2ff','#5cb8ff','#d3ecff','Soft'],
+    ['Grape Mochi','mochi',299,'#d9cfff','#7a5cff','#ddd4ff','Firm'],
+    ['Berry Daifuku','mochi',279,'#ffc2c2','#ff4d5e','#ffd0d3','Medium'],
+    ['Mint Jelly','jelly',199,'#c8fff0','#17c99a','#c9f8ea','Soft'],
+    ['Lime Gloop','jelly',189,'#efffb0','#9be22b','#e6f9b5','Firm']
+  ];
+  var SH=['50% 50% 46% 54%/62% 62% 38% 38%','58% 42% 52% 48%/50% 56% 44% 50%','40% 60% 56% 44%/60% 48% 52% 40%','52% 48% 40% 60%/54% 50% 50% 46%'];
+  var F={type:'all',lv:'Any'},cart=S.cart.load(),grid=$('grid');
+
+  function say(m){var t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(say.t);say.t=setTimeout(function(){t.classList.remove('show')},1800)}
+
+  /* ---- cart ---- */
+  function cartUI(){
+    var q=0,t=0,h='';
+    P.forEach(function(p){
+      var it=cart[p[0]];if(!it||!it.q)return;
+      q+=it.q;t+=it.q*p[2];
+      h+=`<li><b>${p[0]}</b><span>₱${it.q*p[2]}</span><div class='qty'><button data-k='${p[0]}' data-d='-1' aria-label='Remove one ${p[0]}'>−</button><i>${it.q}</i><button data-k='${p[0]}' data-d='1' aria-label='Add one ${p[0]}'>+</button></div></li>`;
+    });
+    $('clist').innerHTML=h||"<li class='empty'>Your cart is empty. Go squish something!</li>";
+    $('ctot').textContent='₱'+t;$('cartN').textContent=q;
+    S.cart.save(cart);
+  }
+  function cartAdd(n){cart[n]=cart[n]||{q:0};cart[n].q++;cartUI();say(n+' added to cart')}
+  var drawer=$('drawer'),scrim=$('scrim');
+  function openCart(o){drawer.classList.toggle('open',o);scrim.classList.toggle('on',o);drawer.setAttribute('aria-hidden',o?'false':'true')}
+  $('cartBtn').addEventListener('click',function(){openCart(true)});
+  $('cx').addEventListener('click',function(){openCart(false)});
+  scrim.addEventListener('click',function(){openCart(false)});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')openCart(false)});
+  $('chk').addEventListener('click',function(){say('Checkout is coming soon')});
+  $('clist').addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b||!cart[b.dataset.k])return;
+    cart[b.dataset.k].q=Math.max(0,cart[b.dataset.k].q+(+b.dataset.d));cartUI();
+  });
+
+  /* ---- product grid ---- */
+  function render(){
+    grid.innerHTML='';
+    var list=P.filter(function(p){return (F.type==='all'||p[1]===F.type)&&(F.lv==='Any'||p[6]===F.lv)});
+    $('shopTitle').textContent=F.type==='all'?'All squishies':T[F.type][0]+' squishies';
+    $('blurb').textContent=F.type==='all'?'Press any squishy to hear what its type sounds like.':T[F.type][1];
+    if(!list.length)grid.innerHTML="<p class='empty'>No squishies match. Try another filter.</p>";
+    list.forEach(function(p,i){
+      var a=document.createElement('article');a.className='toy';a.style.background=p[5];
+      a.innerHTML=`<button class='jelly' data-type='${p[1]}' aria-label='Squish ${p[0]}' style='--c1:${p[3]};--c2:${p[4]};border-radius:${SH[i%4]}'><span class='face'><span class='eyes'><span class='eye'></span><span class='eye'></span></span><span class='mouth'></span></span></button><h3>${p[0]}</h3><p>${T[p[1]][0]} · ${p[6]} squish</p><small>Sounds like a ${T[p[1]][2]}</small><div class='buy'><span>₱${p[2]}</span><button class='add'>Add to cart</button></div>`;
+      var j=a.querySelector('.jelly');S.wire(j);Sq.init(j);
+      a.querySelector('.add').addEventListener('click',function(){cartAdd(p[0]);Sq.hop(j)});
+      grid.appendChild(a);
+    });
+  }
+  document.querySelectorAll('.f').forEach(function(b){
+    b.addEventListener('click',function(){
+      var isT=b.dataset.type!==undefined;
+      F[isT?'type':'lv']=isT?b.dataset.type:b.dataset.lv;
+      document.querySelectorAll(isT?'.f[data-type]':'.f[data-lv]').forEach(function(x){x.classList.toggle('on',x===b)});
+      render();
+    });
+  });
+
+  /* ---- start up: ?type=butter filters, ?cart=1 opens the cart ---- */
+  var q=new URLSearchParams(location.search),qt=q.get('type');
+  if(qt&&T[qt]){F.type=qt;document.querySelectorAll('.f[data-type]').forEach(function(x){x.classList.toggle('on',x.dataset.type===qt)})}
+  render();cartUI();
+  if(q.get('cart'))openCart(true);
+
+  /* reveal after the slime wipe from the landing page */
+  try{
+    if(sessionStorage.getItem('sq-wipe')){
+      sessionStorage.removeItem('sq-wipe');
+      var w=$('wipe');w.classList.add('reset','go');w.getBoundingClientRect();w.classList.remove('reset');
+      requestAnimationFrame(function(){w.classList.add('fade')});
+      setTimeout(function(){w.classList.add('reset');w.classList.remove('go','fade')},700);
+    }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
