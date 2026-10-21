@@ -151,7 +151,7 @@ section{scroll-margin-top:6rem}
     <div class="trio" aria-hidden="true">
       <div class="stick"><div class="orb"></div><div class="rod"></div></div>
       <div class="album"><span id="alb">STRAY KIDS</span></div>
-      <div class="pc"><b id="pcn">Photocard</b></div>
+      <div class="pc" id="pcbox"><b>Photocard</b></div>
     </div>
   </div>
 </div>
@@ -183,7 +183,6 @@ section{scroll-margin-top:6rem}
   <p class="g" id="note" style="color:var(--muted)"></p></div>
 </aside>
 
-<div class="dock" id="dock"><div class="dlist" id="list"></div><button class="dtog" id="tog" type="button" aria-label="Choose group" aria-expanded="false"></button></div>
 <script>
 const $=id=>document.getElementById(id)||document.createElement("div");
 // IMAGES: paste links into logo_url and img_url (order: lightstick, album, photocards, hoodie, keyring, posters).
@@ -213,7 +212,7 @@ function render(){
   r.setProperty("--accent",g.a);r.setProperty("--accent2",g.b);
   $("gname").textContent=g.n;
   $("sub").textContent="Official "+g.n+" merch: the lightstick for the show, the album for the shelf, and the photocards you are still hunting for.";
-  $("alb").textContent=g.n.toUpperCase();$("pcn").textContent=g.pc;
+  $("alb").textContent=g.n.toUpperCase();$("pcbox").innerHTML=g.img_url[2]?px(g.img_url[2],g.pc):`<b>${g.pc}</b>`;
   $("shoptitle").textContent="Shop "+g.n;
   $("grid").innerHTML=items.map((it,i)=>`<article class="card"><div class="thumb" style="--c1:${it.c1};--c2:${it.c2}">${it.e}${px(g.img_url[i],it.t)}</div><h3>${it.t.replace("Latest Album",g.n+" Album")}</h3><p class="g">${g.n} official merch</p><div class="row"><span class="price d">$${it.p}</span><button class="add" data-i="${i}">Add to cart</button></div></article>`).join("");
   $("gal").innerHTML=items.map((it,i)=>`<figure style="--c1:${it.c1};--c2:${it.c2}">${it.e}${px(g.img_url[i],it.t)}<figcaption>${g.n} ${it.t.split(",")[0]}</figcaption></figure>`).join("");
